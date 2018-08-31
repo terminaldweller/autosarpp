@@ -10,6 +10,7 @@
 /*included modules*/
 /*project headers*/
 /*standard headers*/
+#include "./autosarpp.hpp"
 #include <cassert>
 #include <cstdlib>
 #include <dirent.h>
@@ -147,20 +148,16 @@ private:
   MatchFinder Matcher;
 };
 /*******************************************************************************************************/
-class ObfFrontendAction : public ASTFrontendAction {
+class AppFrontendAction : public ASTFrontendAction {
 public:
-  ObfFrontendAction() {}
-  ~ObfFrontendAction() {
+  AppFrontendAction() {}
+  ~AppFrontendAction() {
     delete BDCProto;
-    delete tee;
   }
 
   void EndSourceFileAction() override {
     std::error_code EC;
-    std::string OutputFilename = TEMP_FILE;
     TheRewriter.getEditBuffer(TheRewriter.getSourceMgr().getMainFileID()).write(llvm::outs());
-    tee = new raw_fd_ostream(StringRef(OutputFilename), EC, sys::fs::F_None);
-    TheRewriter.getEditBuffer(TheRewriter.getSourceMgr().getMainFileID()).write(*tee);
   }
 
   std::unique_ptr<ASTConsumer> CreateASTConsumer(CompilerInstance &CI, StringRef file) override {
@@ -174,7 +171,6 @@ public:
 private:
   BlankDiagConsumer* BDCProto = new BlankDiagConsumer;
   Rewriter TheRewriter;
-  raw_ostream *tee = &llvm::outs();
 };
 /*******************************************************************************************************/
 /*******************************************************************************************************/
@@ -183,7 +179,7 @@ int main(int argc, const char **argv) {
   CommonOptionsParser op(argc, argv, APPCat);
   const std::vector<std::string> &SourcePathList = op.getSourcePathList();
   ClangTool Tool(op.getCompilations(), op.getSourcePathList());
-  int ret = Tool.run(newFrontendActionFactory<ObfFrontendAction>().get());
+  int ret = Tool.run(newFrontendActionFactory<AppFrontendAction>().get());
   return ret;
 }
 /*******************************************************************************************************/
