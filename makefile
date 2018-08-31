@@ -112,11 +112,11 @@ $(TARGET)-cov: $(TARGET).ocov
 
 cov: runcov
 	@llvm-profdata merge -sparse ./default.profraw -o ./default.profdata
-	@llvm-cov show $(TARGET)-cov -instr-profile=default.profdata
+	@llvm-cov show $(TARGET)-cov -instr-profile=default.profdata -ignore-filename-regex=llvm clang
 
 covrep: runcov
 	@llvm-profdata merge -sparse ./default.profraw -o ./default.profdata
-	@llvm-cov report $(TARGET)-cov -instr-profile=default.profdata
+	@llvm-cov report $(TARGET)-cov -instr-profile=default.profdata -ignore-filename-regex=llvm -ignore-filename-regex=clang -show-functions autosarpp.cpp
 
 ASM:$(ASM_LIST)
 
@@ -156,8 +156,8 @@ clean:
 	rm -f *.o *.dis *.odbg *.ocov *~ $(TARGET) $(TARGET).so $(TARGET)-static $(TARGET)-dbg $(TARGET).a $(TARGET)-cov ./keccak-tiny/*.o ./keccak-tiny/*.ocov ./keccak-tiny/*.odbg
 
 deepclean: clean
-	rm tags
-	rm .depend
+	- rm tags
+	- rm .depend
 
 help:
 	@echo "--all is the default target, runs $(TARGET) target"

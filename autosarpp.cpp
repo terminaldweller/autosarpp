@@ -1,25 +1,12 @@
 
 /*first line intentionally left blank.*/
-/***************************************************Project Mutator****************************************************/
+/*******************************************************************************************************/
 //-*-c++-*-
-// a clang tool blueprint
+// autosar cpp 14 guideline compliance checker
 /*Copyright (C) 2018 Farzad Sadeghi
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*/
-/*code structure inspired by Eli Bendersky's tutorial on Rewriters.*/
-/**********************************************************************************************************************/
+ * Licensed under LGPL-3.0
+ * */
+/*******************************************************************************************************/
 /*included modules*/
 /*project headers*/
 /*standard headers*/
@@ -43,21 +30,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #include "clang/Tooling/Tooling.h"
 #include "clang/Rewrite/Core/Rewriter.h"
 #include "llvm/Support/raw_ostream.h"
-/**********************************************************************************************************************/
+/*******************************************************************************************************/
 /*used namespaces*/
 using namespace llvm;
 using namespace clang;
 using namespace clang::ast_matchers;
 using namespace clang::driver;
 using namespace clang::tooling;
-/**********************************************************************************************************************/
-/**********************************************************************************************************************/
-/**********************************************************************************************************************/
+/*******************************************************************************************************/
 namespace {
-  static llvm::cl::OptionCategory ObfuscatorCat("Obfuscator custom options");
-  std::string TEMP_FILE="/tmp/generic_temp";
+  static llvm::cl::OptionCategory APPCat("autosarpp custom options");
 }
-/**********************************************************************************************************************/
+/*******************************************************************************************************/
 class CalledFunc : public MatchFinder::MatchCallback {
   public:
     CalledFunc(Rewriter &Rewrite) : Rewrite(Rewrite) {}
@@ -67,7 +51,7 @@ class CalledFunc : public MatchFinder::MatchCallback {
   private:
     Rewriter &Rewrite;
 };
-/**********************************************************************************************************************/
+/*******************************************************************************************************/
 class CalledVar : public MatchFinder::MatchCallback {
   public:
     CalledVar (Rewriter &Rewrite) : Rewrite(Rewrite) {}
@@ -79,7 +63,7 @@ class CalledVar : public MatchFinder::MatchCallback {
   private:
     Rewriter &Rewrite;
 };
-/**********************************************************************************************************************/
+/*******************************************************************************************************/
 class FuncDecl : public MatchFinder::MatchCallback
 {
 public:
@@ -90,7 +74,7 @@ public:
 private:
   Rewriter &Rewrite;
 };
-/**********************************************************************************************************************/
+/*******************************************************************************************************/
 class VDecl : public MatchFinder::MatchCallback
 {
 public:
@@ -101,7 +85,7 @@ public:
 private:
   Rewriter &Rewrite;
 };
-/**********************************************************************************************************************/
+/*******************************************************************************************************/
 class ClassDecl : public MatchFinder::MatchCallback {
   public:
     ClassDecl (Rewriter &Rewrite) : Rewrite(Rewrite) {}
@@ -111,7 +95,7 @@ class ClassDecl : public MatchFinder::MatchCallback {
   private:
     Rewriter &Rewrite;
 };
-/**********************************************************************************************************************/
+/*******************************************************************************************************/
 class PPInclusion : public PPCallbacks
 {
 public:
@@ -129,10 +113,8 @@ private:
   const SourceManager &SM;
   Rewriter &Rewrite;
 };
-/**********************************************************************************************************************/
-/**
- * @brief A Clang Diagnostic Consumer that does nothing.
- */
+/*******************************************************************************************************/
+// brief A Clang Diagnostic Consumer that does nothing.
 class BlankDiagConsumer : public clang::DiagnosticConsumer
 {
   public:
@@ -140,7 +122,7 @@ class BlankDiagConsumer : public clang::DiagnosticConsumer
     virtual ~BlankDiagConsumer() {}
     virtual void HandleDiagnostic(DiagnosticsEngine::Level DiagLevel, const Diagnostic &Info) override {}
 };
-/**********************************************************************************************************************/
+/*******************************************************************************************************/
 class MyASTConsumer : public ASTConsumer {
 public:
   MyASTConsumer(Rewriter &R) : funcDeclHandler(R), HandlerForVar(R), HandlerForClass(R), HandlerForCalledFunc(R), HandlerForCalledVar(R) {
@@ -164,7 +146,7 @@ private:
   CalledVar HandlerForCalledVar;
   MatchFinder Matcher;
 };
-/**********************************************************************************************************************/
+/*******************************************************************************************************/
 class ObfFrontendAction : public ASTFrontendAction {
 public:
   ObfFrontendAction() {}
@@ -194,16 +176,16 @@ private:
   Rewriter TheRewriter;
   raw_ostream *tee = &llvm::outs();
 };
-/**********************************************************************************************************************/
-/**********************************************************************************************************************/
+/*******************************************************************************************************/
+/*******************************************************************************************************/
 /*Main*/
 int main(int argc, const char **argv) {
-  CommonOptionsParser op(argc, argv, ObfuscatorCat);
+  CommonOptionsParser op(argc, argv, APPCat);
   const std::vector<std::string> &SourcePathList = op.getSourcePathList();
   ClangTool Tool(op.getCompilations(), op.getSourcePathList());
   int ret = Tool.run(newFrontendActionFactory<ObfFrontendAction>().get());
   return ret;
 }
-/**********************************************************************************************************************/
+/*******************************************************************************************************/
 /*last line intentionally left blank.*/
 
