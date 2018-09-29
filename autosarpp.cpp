@@ -107,12 +107,23 @@ public:
                             const MacroDefinition &MD, SourceRange Range,
                             const MacroArgs *Args) {}
 
+#if __clang_major__ <= 6
   virtual void InclusionDirective(SourceLocation HashLoc,
                                   const Token &IncludeTok, StringRef FileName,
                                   bool IsAngled, CharSourceRange FilenameRange,
                                   const FileEntry *File, StringRef SearchPath,
                                   StringRef RelativePath,
-                                  const clang::Module *Imported) {}
+                                  const clang::Module *Imported) {
+#elif __clang_major__ >= 8
+  virtual void InclusionDirective(SourceLocation HashLoc,
+                                  const Token &IncludeTok, StringRef FileName,
+                                  bool IsAngled, CharSourceRange FilenameRange,
+                                  const FileEntry *File, StringRef SearchPath,
+                                  StringRef RelativePath,
+                                  const clang::Module *Imported,
+                                  SrcMgr::CharacteristicKind FileType) {
+#endif
+  }
 
 private:
   const SourceManager &SM;
