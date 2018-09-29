@@ -147,7 +147,7 @@ test: $(TARGET)
 	$(TARGET) ./autosarpp.cpp --
 
 valgrind: $(TARGET)
-	- valgrind --leak-check=yes $(TARGET)
+	- valgrind --track-origins=yes --leak-check=full --show-leak-kinds=all $(TARGET) $(TARGET).cpp --
 
 format:
 	- clang-format -i $(SRCS) $(HDRS)
